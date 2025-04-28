@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFocus - Todo App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <style>
+        /* Animations */
+        .slide-fade-enter-active, .slide-fade-leave-active {
+            transition: all 0.3s ease;
+        }
+        .slide-fade-enter-from, .slide-fade-leave-to {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        
+        /* Custom Markdown styles */
+        .markdown-content table {
+            border-collapse: collapse;
+            margin: 1em 0;
+            width: 100%;
+        }
+        .markdown-content table, .markdown-content th, .markdown-content td {
+            border: 1px solid #ccc;
+        }
+        .markdown-content th, .markdown-content td {
+            padding: 0.5em 1em;
+            text-align: left;
+        }
+        .markdown-content th {
+            background-color: #f5f5f5;
+        }
+        .dark .markdown-content th {
+            background-color: #374151;
+        }
+        .dark .markdown-content table, .dark .markdown-content th, .dark .markdown-content td {
+            border-color: #4b5563;
+        }
+        
+        /* Section transitions */
+        .section-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
+            overflow: hidden;
+        }
+        
+        /* Categories transition */
+        #task-categories {
+            transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        #task-categories.collapsed {
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        #task-categories.expanded {
+            max-height: 1000px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Project hover style */
+        .project-item .project-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .project-item:hover .project-actions {
+            opacity: 1;
+        }
+        
+        /* Completed section styling */
+        .section-completed .section-title {
+            color: #10b981; /* Green color for completed tasks */
+        }
+        
+        /* Pill styling */
+        .pill {
+            display: inline-block;
+            background-color: #e5e7eb;
+            color: #4b5563;
+            padding: 0.1rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-right: 0.25rem;
+        }
+        .dark .pill {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+        
+        /* Toggle button animation */
+        .toggle-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .toggle-icon.flip {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen transition-colors duration-200">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- Header with project name -->
+        <header class="flex justify-center items-center mb-6">
+            <h1 id="project-header" class="text-3xl font-bold"></h1>
+        </header>
+
+        <!-- Main content area -->
+        <div class="flex flex-col gap-6">
+            <!-- Task categories row (priority, active, parked) -->
+            <div id="task-categories" class="grid grid-cols-1 md:grid-cols-3 gap-4 expanded">
+                <!-- Priority tasks -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="priority-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-red-600 dark:text-red-400">
+                            <i class="fas fa-exclamation-circle mr-2"></i>Priority
+                        </h2>
+                        <button class="add-task-btn p-2 rounded-full bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-600 dark:text-red-400" data-status="priority">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="task-list min-h-24" id="priority-tasks"></div>
+                    <div id="priority-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <p>No priority tasks</p>
+                    </div>
+                    
+                    <!-- Backlog tasks (moved to priority) -->
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-bold text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-list-alt mr-2"></i>Backlog
+                            </h3>
+                            <div class="flex items-center">
+                                <button class="add-task-btn p-1 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 mr-2" data-status="backlog">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button id="toggle-backlog" class="text-xs px-2 py-1 text-gray-600 dark:text-gray-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="backlog-container" class="hidden">
+                            <div class="task-list" id="backlog-tasks"></div>
+                            <div id="backlog-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                                <p>No backlog tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active tasks (formerly Normal) -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="active-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400">
+                            <i class="fas fa-tasks mr-2"></i>Active
+                        </h2>
+                        <button class="add-task-btn p-2 rounded-full bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400" data-status="active">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="task-list min-h-24" id="active-tasks"></div>
+                    <div id="active-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <p>No active tasks</p>
+                    </div>
+                </div>
+
+                <!-- Parked tasks -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="parked-container">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                            <i class="fas fa-pause-circle mr-2"></i>Parked
+                        </h2>
+                        <button class="add-task-btn p-2 rounded-full bg-yellow-100 dark:bg-yellow-900 hover:bg-yellow-200 dark:hover:bg-yellow-800 text-yellow-600 dark:text-yellow-400" data-status="parked">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="task-list min-h-16" id="parked-tasks"></div>
+                    <div id="parked-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                        <p>No parked tasks</p>
+                    </div>
+                    
+                    <!-- Completed tasks (initially collapsed) -->
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-lg font-bold text-green-600 dark:text-green-400">
+                                <i class="fas fa-check-circle mr-2"></i>Completed
+                            </h3>
+                            <button id="toggle-completed" class="text-xs px-2 py-1 text-green-600 dark:text-green-400">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div id="completed-container" class="hidden">
+                            <div class="task-list" id="completed-tasks"></div>
+                            <div id="completed-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                                <p>No completed tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Focus area (now hidden when empty) -->
+            <div id="focus-area" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 relative hidden">
+                <div class="flex justify-between items-center mb-4 pr-16">
+                    <div class="flex items-center">
+                        <button id="toggle-categories-btn" class="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mr-4">
+                            <i class="fas fa-chevron-down toggle-icon mr-2"></i>
+                            <span>Categories</span>
+                        </button>
+                        <h2 class="text-xl font-bold flex items-center">
+                            <span id="focus-task-title">Task</span>
+                        </h2>
+                    </div>
+                    <div id="task-status-badge" class="ml-2 px-2 py-1 rounded-full text-sm font-medium"></div>
+                </div>
+                
+                <!-- Close button (top right) - Always shown -->
+                <div class="absolute top-4 right-4">
+                    <button id="close-focus-task" class="p-1 rounded bg-red-100 dark:bg-red-900 text-red-500 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Task in focus mode -->
+                <div id="focus-content">
+                    <!-- Task title (editable) -->
+                    <div class="mb-6">
+                        <input id="focus-title" class="text-2xl font-bold w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="Task title">
+                    </div>
+                    
+                    <!-- Task date (editable) -->
+                    <div class="mb-6">
+                        <input type="date" id="focus-date" class="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                    
+                    <!-- Task content with subheaders -->
+                    <div id="focus-sections">
+                        <!-- Sections will be dynamically added here -->
+                    </div>
+                    
+                    <!-- Add new section button and Complete button -->
+                    <div class="mt-6 flex justify-between items-center">
+                        <a id="add-section-btn" class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm">
+                            <i class="fas fa-plus mr-1"></i> Add section
+                        </a>
+                        <button id="complete-focus-task" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
+                            <i class="fas fa-check mr-1"></i> Complete
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- New task form (initially hidden) -->
+                <div id="new-task-form" class="hidden">
+                    <!-- Task title (editable) -->
+                    <div class="mb-6">
+                        <input id="new-task-title" class="text-2xl font-bold w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="New task title">
+                    </div>
+                    
+                    <!-- Task date (editable) -->
+                    <div class="mb-6">
+                        <input type="date" id="new-task-date" class="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                    </div>
+                    
+                    <!-- Commit button for new task -->
+                    <div class="absolute top-4 right-12">
+                        <button id="commit-focus-task" class="p-1 rounded bg-green-100 dark:bg-green-900 text-green-500 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project menu button (bottom right) -->
+        <div class="fixed bottom-6 right-6">
+            <button id="app-menu-btn" class="w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg flex items-center justify-center hover:bg-blue-600">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            
+            <!-- Context menu (hidden by default) -->
+            <div id="app-context-menu" class="absolute bottom-16 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3 w-64 hidden">
+                <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <li class="pb-2">
+                        <button id="dark-mode-toggle" class="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center">
+                            <i class="fas fa-moon mr-3 dark:hidden"></i>
+                            <i class="fas fa-sun mr-3 hidden dark:block"></i>
+                            <span class="dark:hidden">Dark Mode</span>
+                            <span class="hidden dark:block">Light Mode</span>
+                        </button>
+                    </li>
+                    <li class="py-2">
+                        <div class="px-3 py-1 flex justify-between">
+                            <span class="font-medium">Projects</span>
+                            <button id="add-project-btn" class="text-blue-500 hover:text-blue-700">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <ul id="projects-menu-list" class="mt-1 max-h-32 overflow-y-auto">
+                            <!-- Projects will be listed here -->
+                        </ul>
+                    </li>
+                    <li class="pt-2">
+                        <div class="flex px-2 space-x-2">
+                            <button id="menu-import-btn" class="flex-1 px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center">
+                                <i class="fas fa-upload mr-2"></i> Import
+                            </button>
+                            <button id="menu-export-btn" class="flex-1 px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center">
+                                <i class="fas fa-download mr-2"></i> Export
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Project Modal -->
+    <div id="add-project-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">New Project</h2>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label for="new-project-name" class="block text-sm font-medium mb-1">Project Name</label>
+                <input type="text" id="new-project-name" class="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="Enter project name">
+            </div>
+            <div class="flex justify-end">
+                <button id="create-project-btn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    Create Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Import Tasks</h2>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2">Upload JSON File:</label>
+                <input type="file" id="import-file" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" accept=".json">
+            </div>
+            <div id="import-preview" class="hidden">
+                <h3 class="font-medium mb-2">Select Tasks to Import:</h3>
+                <div class="border rounded dark:border-gray-700 p-2 max-h-96 overflow-y-auto">
+                    <div id="import-selection"></div>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <div>
+                        <button id="select-all-imports" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 mr-2">
+                            Select All
+                        </button>
+                        <button id="unselect-all-imports" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+                            Unselect All
+                        </button>
+                    </div>
+                    <div>
+                        <button id="process-import" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                            Import Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Export Tasks</h2>
+                <button class="close-modal text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div>
+                <h3 class="font-medium mb-2">Select Tasks to Export:</h3>
+                <div class="border rounded dark:border-gray-700 p-2 max-h-96 overflow-y-auto">
+                    <div id="export-selection"></div>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <div>
+                        <button id="select-all-exports" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 mr-2">
+                            Select All
+                        </button>
+                        <button id="unselect-all-exports" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+                            Unselect All
+                        </button>
+                    </div>
+                    <div>
+                        <button id="process-export" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Export Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configure marked.js
+        marked.use({
+            gfm: true,  // GitHub Flavored Markdown
+            breaks: true, // Translate line breaks
+            headerIds: false,
+            mangle: false
+        });
+
+        // App state
+        let state = {
+            darkMode: false,
+            projects: [],
+            currentProjectId: null,
+            tasks: [],
+            focusTaskId: null,
+            newTaskStatus: null, // For tracking which status a new task will have
+            categoriesVisible: true
+        };
+
+        // Initialize app
+        function initApp() {
+            loadStateFromLocalStorage();
+            applyDarkMode();
+            renderProjects();
+            renderTasks();
+            setupEventListeners();
+            initSortable();
+            updateCategoryToggle();
+        }
+
+        // Load state from localStorage
+        function loadStateFromLocalStorage() {
+            const savedState = localStorage.getItem('taskFocusState');
+            if (savedState) {
+                state = JSON.parse(savedState);
+                
+                // Handle migration from "normal" status to "active"
+                if (state.tasks) {
+                    state.tasks.forEach(task => {
+                        if (task.status === 'normal') {
+                            task.status = 'active';
+                        }
+                    });
+                }
+                
+            } else {
+                // Initial state with default project
+                state = {
+                    darkMode: false,
+                    projects: [
+                        { id: 'default', name: 'Default Project' }
+                    ],
+                    currentProjectId: 'default',
+                    tasks: [],
+                    focusTaskId: null,
+                    newTaskStatus: null,
+                    categoriesVisible: true
+                };
+                saveStateToLocalStorage();
+            }
+
+            // Ensure we have at least one project
+            if (state.projects.length === 0) {
+                state.projects.push({ id: 'default', name: 'Default Project' });
+                state.currentProjectId = 'default';
+            }
+
+            // Ensure current project exists
+            if (!state.projects.find(project => project.id === state.currentProjectId)) {
+                state.currentProjectId = state.projects[0].id;
+            }
+        }
+
+        // Save state to localStorage
+        function saveStateToLocalStorage() {
+            localStorage.setItem('taskFocusState', JSON.stringify(state));
+        }
+
+        // Apply dark mode
+        function applyDarkMode() {
+            if (state.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // Initialize Sortable for drag and drop
+        function initSortable() {
+            const containers = document.querySelectorAll('.task-list');
+            
+            containers.forEach(container => {
+                new Sortable(container, {
+                    group: 'tasks',
+                    animation: 150,
+                    ghostClass: 'bg-blue-100',
+                    onEnd: function(evt) {
+                        const taskId = evt.item.getAttribute('data-task-id');
+                        const newStatus = evt.to.id.replace('-tasks', '');
+                        
+                        // Update task status
+                        const task = state.tasks.find(task => task.id === taskId);
+                        if (task) {
+                            task.status = newStatus;
+                            task.lastModified = Date.now();
+                            saveStateToLocalStorage();
+                            renderTasks();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Update category toggle based on state
+        function updateCategoryToggle() {
+            const categories = document.getElementById('task-categories');
+            const toggleIcon = document.querySelector('.toggle-icon');
+            const focusArea = document.getElementById('focus-area');
+            
+            if (state.focusTaskId || state.newTaskStatus) {
+                // Show the focus area
+                focusArea.classList.remove('hidden');
+                
+                // Show or hide the commit button based on whether this is a new task
+                const commitButton = document.getElementById('commit-focus-task');
+                if (state.newTaskStatus) {
+                    commitButton.classList.remove('hidden');
+                } else {
+                    commitButton.classList.add('hidden');
+                }
+                
+                if (state.categoriesVisible) {
+                    categories.classList.remove('collapsed');
+                    categories.classList.add('expanded');
+                    toggleIcon.classList.remove('flip');
+                } else {
+                    categories.classList.remove('expanded');
+                    categories.classList.add('collapsed');
+                    toggleIcon.classList.add('flip');
+                }
+            } else {
+                // Hide the focus area
+                focusArea.classList.add('hidden');
+                categories.classList.remove('collapsed');
+                categories.classList.add('expanded');
+                toggleIcon.classList.remove('flip');
+                state.categoriesVisible = true;
+            }
+        }
+
+        // Extract pills from text
+        function extractPills(text) {
+            const regex = /\[([^\]]+)\]/g;
+            const pills = [];
+            let match;
+            
+            while ((match = regex.exec(text)) !== null) {
+                pills.push(match[1]);
+            }
+            
+            return pills;
+        }
+
+        // Render projects
+        function renderProjects() {
+            // Update project header
+            const currentProject = state.projects.find(project => project.id === state.currentProjectId);
+            document.getElementById('project-header').textContent = currentProject ? currentProject.name : '';
+
+            // Render projects in menu
+            const projectsList = document.getElementById('projects-menu-list');
+            projectsList.innerHTML = '';
+            
+            state.projects.forEach(project => {
+                const projectItem = document.createElement('li');
+                projectItem.className = 'project-item py-1 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded';
+                if (project.id === state.currentProjectId) {
+                    projectItem.classList.add('bg-blue-50', 'dark:bg-blue-900');
+                }
+                
+                // Check if in edit mode
+                const isEditing = project.isEditing || false;
+                const isDeleting = project.isDeleting || false;
+                
+                if (isEditing) {
+                    projectItem.innerHTML = `
+                        <div class="flex items-center mb-1">
+                            <input type="text" class="project-edit-input flex-1 px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600" value="${project.name}">
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button class="cancel-edit-btn text-gray-500 hover:text-gray-700 px-2 py-1 text-sm">
+                                Cancel
+                            </button>
+                            <button class="save-edit-btn text-blue-500 hover:text-blue-700 px-2 py-1 text-sm">
+                                Save
+                            </button>
+                        </div>
+                    `;
+                } else if (isDeleting) {
+                    projectItem.innerHTML = `
+                        <div class="font-medium mb-1">${project.name}</div>
+                        <div class="text-sm text-red-500 mb-1">Delete this project?</div>
+                        <div class="flex justify-end space-x-2">
+                            <button class="cancel-delete-btn text-gray-500 hover:text-gray-700 px-2 py-1 text-sm">
+                                Cancel
+                            </button>
+                            <button class="confirm-delete-btn text-red-500 hover:text-red-700 px-2 py-1 text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    projectItem.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="project-name truncate ${project.id === state.currentProjectId ? 'font-medium' : ''}">${project.name}</span>
+                            <div class="project-actions flex space-x-1">
+                                <button class="edit-project-btn p-1 text-blue-500 hover:text-blue-700" data-project-id="${project.id}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="delete-project-btn p-1 text-red-500 hover:text-red-700 ${state.projects.length === 1 ? 'invisible' : ''}" data-project-id="${project.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click event to select project
+                    projectItem.addEventListener('click', (e) => {
+                        if (!e.target.closest('button')) {
+                            const projectId = project.id;
+                            // Don't clear focus when switching projects
+                            if (state.currentProjectId !== projectId) {
+                                state.currentProjectId = projectId;
+                                saveStateToLocalStorage();
+                                renderProjects();
+                                renderTasks();
+                                document.getElementById('app-context-menu').classList.add('hidden');
+                            }
+                        }
+                    });
+                }
+                
+                projectsList.appendChild(projectItem);
+            });
+            
+            // Add event listeners to project buttons
+            setupProjectListeners();
+        }
+
+        // Setup project-related event listeners
+        function setupProjectListeners() {
+            // Edit project button
+            document.querySelectorAll('.edit-project-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const projectId = e.currentTarget.getAttribute('data-project-id');
+                    
+                    // Set edit mode
+                    state.projects.forEach(p => {
+                        p.isEditing = (p.id === projectId);
+                        p.isDeleting = false;
+                    });
+                    
+                    renderProjects();
+                    
+                    // Focus the input
+                    setTimeout(() => {
+                        const input = document.querySelector('.project-edit-input');
+                        if (input) input.focus();
+                    }, 0);
+                });
+            });
+            
+            // Delete project button
+            document.querySelectorAll('.delete-project-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const projectId = e.currentTarget.getAttribute('data-project-id');
+                    
+                    // Set delete mode
+                    state.projects.forEach(p => {
+                        p.isDeleting = (p.id === projectId);
+                        p.isEditing = false;
+                    });
+                    
+                    renderProjects();
+                });
+            });
+            
+            // Cancel edit button
+            document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Clear edit mode
+                    state.projects.forEach(p => {
+                        p.isEditing = false;
+                    });
+                    
+                    renderProjects();
+                });
+            });
+            
+            // Save edit button
+            document.querySelectorAll('.save-edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    const input = e.target.closest('.project-item').querySelector('.project-edit-input');
+                    const newName = input.value.trim();
+                    
+                    if (newName) {
+                        // Find the project being edited
+                        const editingProject = state.projects.find(p => p.isEditing);
+                        if (editingProject) {
+                            editingProject.name = newName;
+                            editingProject.isEditing = false;
+                            saveStateToLocalStorage();
+                            renderProjects();
+                            
+                            // Update header if current project
+                            if (editingProject.id === state.currentProjectId) {
+                                document.getElementById('project-header').textContent = newName;
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Cancel delete button
+            document.querySelectorAll('.cancel-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Clear delete mode
+                    state.projects.forEach(p => {
+                        p.isDeleting = false;
+                    });
+                    
+                    renderProjects();
+                });
+            });
+            
+            // Confirm delete button
+            document.querySelectorAll('.confirm-delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Find the project being deleted
+                    const deletingProject = state.projects.find(p => p.isDeleting);
+                    if (deletingProject && state.projects.length > 1) {
+                        const projectId = deletingProject.id;
+                        
+                        // Remove all tasks associated with this project
+                        state.tasks = state.tasks.filter(task => task.projectId !== projectId);
+                        
+                        // Remove the project
+                        state.projects = state.projects.filter(project => !project.isDeleting);
+                        
+                        // If we deleted the current project, switch to the first available
+                        if (state.currentProjectId === projectId) {
+                            state.currentProjectId = state.projects[0].id;
+                            state.focusTaskId = null; // Clear focus when switching to a different project after deletion
+                        }
+                        
+                        saveStateToLocalStorage();
+                        renderProjects();
+                        renderTasks();
+                    }
+                });
+            });
+            
+            // Project edit input Enter key
+            document.querySelectorAll('.project-edit-input').forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const saveBtn = e.target.closest('.project-item').querySelector('.save-edit-btn');
+                        if (saveBtn) saveBtn.click();
+                    } else if (e.key === 'Escape') {
+                        const cancelBtn = e.target.closest('.project-item').querySelector('.cancel-edit-btn');
+                        if (cancelBtn) cancelBtn.click();
+                    }
+                });
+            });
+        }
+
+        // Render tasks
+        function renderTasks() {
+            // Filter tasks for current project
+            const projectTasks = state.tasks.filter(task => task.projectId === state.currentProjectId);
+            
+            // Get tasks by status
+            const priorityTasksList = projectTasks.filter(task => task.status === 'priority');
+            const activeTasksList = projectTasks.filter(task => task.status === 'active');
+            const backlogTasksList = projectTasks.filter(task => task.status === 'backlog');
+            const parkedTasksList = projectTasks.filter(task => task.status === 'parked');
+            const completedTasksList = projectTasks.filter(task => task.status === 'completed');
+            
+            // Render task lists
+            renderTaskList('priority', priorityTasksList);
+            renderTaskList('active', activeTasksList);
+            renderTaskList('backlog', backlogTasksList);
+            renderTaskList('parked', parkedTasksList);
+            renderTaskList('completed', completedTasksList);
+            
+            // Render focus task or new task form
+            if (state.newTaskStatus) {
+                renderNewTaskForm();
+            } else {
+                renderFocusTask();
+            }
+            
+            // Update category visibility
+            updateCategoryToggle();
+        }
+
+        // Render a task list
+        function renderTaskList(status, tasks) {
+            const container = document.getElementById(`${status}-tasks`);
+            const emptyElement = document.getElementById(`${status}-empty`);
+            
+            container.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                emptyElement.classList.remove('hidden');
+            } else {
+                emptyElement.classList.add('hidden');
+                
+                tasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item p-3 mb-2 bg-gray-50 dark:bg-gray-700 rounded flex justify-between items-center cursor-move`;
+                    if (task.id === state.focusTaskId) {
+                        taskElement.classList.add('ring-2');
+                        taskElement.classList.add('ring-blue-500');
+                    }
+                    taskElement.setAttribute('data-task-id', task.id);
+                    
+                    // Format date
+                    let dateDisplay = '';
+                    if (task.dueDate) {
+                        const dueDate = new Date(task.dueDate);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        
+                        const options = { month: 'short', day: 'numeric' };
+                        
+                        if (dueDate < today) {
+                            dateDisplay = `<span class="text-red-500">Overdue: ${dueDate.toLocaleDateString(undefined, options)}</span>`;
+                        } else if (dueDate.getTime() === today.getTime()) {
+                            dateDisplay = '<span class="text-orange-500">Today</span>';
+                        } else if (dueDate.getTime() === tomorrow.getTime()) {
+                            dateDisplay = '<span class="text-yellow-500">Tomorrow</span>';
+                        } else {
+                            dateDisplay = dueDate.toLocaleDateString(undefined, options);
+                        }
+                    }
+                    
+                    taskElement.innerHTML = `
+                        <div class="flex-1">
+                            <div class="font-medium">${task.title}</div>
+                            ${dateDisplay ? `<div class="text-xs">${dateDisplay}</div>` : ''}
+                        </div>
+                        <div class="task-drag-handle ml-2 text-gray-400">
+                            <i class="fas fa-grip-lines"></i>
+                        </div>
+                    `;
+                    
+                    container.appendChild(taskElement);
+                });
+                
+                // Add event listeners for focusing tasks
+                container.querySelectorAll('.task-item').forEach(taskItem => {
+                    taskItem.addEventListener('click', (e) => {
+                        if (!e.target.closest('.task-drag-handle')) {
+                            const taskId = taskItem.getAttribute('data-task-id');
+                            setFocusTask(taskId);
+                        }
+                    });
+                });
+            }
+        }
+
+        // Render new task form
+        function renderNewTaskForm() {
+            document.getElementById('focus-content').classList.add('hidden');
+            document.getElementById('new-task-form').classList.remove('hidden');
+            
+            // Set task status indicator
+            const statusBadge = document.getElementById('task-status-badge');
+            statusBadge.className = 'ml-2 px-2 py-1 rounded-full text-sm font-medium';
+            
+            const statusConfig = {
+                'priority': { text: 'Priority', class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+                'active': { text: 'Active', class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+                'backlog': { text: 'Backlog', class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' },
+                'parked': { text: 'Parked', class: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+            };
+            
+            const config = statusConfig[state.newTaskStatus] || { text: '', class: 'hidden' };
+            statusBadge.classList.add(...config.class.split(' '));
+            statusBadge.textContent = config.text;
+            
+            // Focus title input
+            setTimeout(() => {
+                document.getElementById('new-task-title').focus();
+            }, 0);
+        }
+
+        // Render focus task
+        function renderFocusTask() {
+            const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+            
+            if (!focusTask) {
+                document.getElementById('focus-content').classList.add('hidden');
+                document.getElementById('new-task-form').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('focus-content').classList.remove('hidden');
+            document.getElementById('new-task-form').classList.add('hidden');
+            
+            // Set title and date
+            document.getElementById('focus-title').value = focusTask.title;
+            document.getElementById('focus-date').value = focusTask.dueDate || '';
+            document.getElementById('focus-task-title').textContent = 'Task';
+            
+            // Set task status indicator
+            const statusBadge = document.getElementById('task-status-badge');
+            statusBadge.className = 'ml-2 px-2 py-1 rounded-full text-sm font-medium';
+            
+            const statusConfig = {
+                'priority': { text: 'Priority', class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+                'active': { text: 'Active', class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
+                'backlog': { text: 'Backlog', class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' },
+                'parked': { text: 'Parked', class: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+                'completed': { text: 'Completed', class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' }
+            };
+            
+            const config = statusConfig[focusTask.status] || { text: '', class: 'hidden' };
+            statusBadge.classList.add(...config.class.split(' '));
+            statusBadge.textContent = config.text;
+            
+            // Render sections
+            renderTaskSections(focusTask);
+        }
+
+        // Render task sections
+        function renderTaskSections(task) {
+            const sectionsContainer = document.getElementById('focus-sections');
+            sectionsContainer.innerHTML = '';
+            
+            // Initialize sections if not exists
+            if (!task.sections || !Array.isArray(task.sections) || task.sections.length === 0) {
+                task.sections = [
+                    { id: generateId(), title: 'Notes', content: task.notes || '', expanded: true, completed: false }
+                ];
+                
+                // Remove legacy notes field
+                delete task.notes;
+                saveStateToLocalStorage();
+            }
+            
+            // Render each section
+            task.sections.forEach((section, index) => {
+                const sectionElement = document.createElement('div');
+                sectionElement.className = 'mb-4 border rounded dark:border-gray-600';
+                sectionElement.setAttribute('data-section-id', section.id);
+                
+                // Check if section is completed
+                const isCompleted = section.completed || false;
+                
+                // Extract pills from content
+                const pills = extractPills(section.content);
+                const pillsHtml = pills.length > 0 
+                    ? pills.map(pill => `<span class="pill">${pill}</span>`).join('') 
+                    : '';
+                
+                sectionElement.innerHTML = `
+                    <div class="section-header flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-700 cursor-pointer">
+                        <div class="flex items-center flex-1">
+                            <i class="fas fa-chevron-down mr-2 transform ${section.expanded ? '' : 'rotate-180'} text-gray-500"></i>
+                            <input type="text" class="section-title bg-transparent border-none focus:ring-0 font-medium ${isCompleted ? 'text-green-500' : ''}" value="${section.title}" placeholder="Section Title">
+                        </div>
+                        <div class="flex items-center">
+                            ${pillsHtml}
+                            <div class="flex ml-2 space-x-2">
+                                <button class="section-complete-btn p-1 text-${isCompleted ? 'green' : 'gray'}-500 hover:text-green-700" title="Toggle Complete">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="section-move-up-btn p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 ${index === 0 ? 'invisible' : ''}" title="Move Up">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="section-move-down-btn p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 ${index === task.sections.length - 1 ? 'invisible' : ''}" title="Move Down">
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                                <button class="section-delete-btn p-1 text-gray-500 hover:text-red-500 ${task.sections.length === 1 ? 'invisible' : ''}" title="Delete Section">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-content ${section.expanded ? '' : 'hidden'} p-4">
+                        <div class="section-rendered markdown-content prose dark:prose-invert max-w-none p-3 rounded cursor-pointer">${marked.parse(section.content || '')}</div>
+                        <textarea class="section-textarea w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32 hidden" placeholder="Section content (Markdown supported)">${section.content || ''}</textarea>
+                    </div>
+                `;
+                
+                sectionsContainer.appendChild(sectionElement);
+            });
+            
+            // Add event listeners for sections
+            setupSectionListeners();
+        }
+
+        // Set up event listeners for sections
+        function setupSectionListeners() {
+            // Toggle section expand/collapse
+            document.querySelectorAll('.section-header').forEach(header => {
+                header.addEventListener('click', (e) => {
+                    if (e.target.closest('button') || e.target.tagName === 'INPUT') {
+                        return; // Ignore clicks on buttons and input fields
+                    }
+                    
+                    const sectionElement = header.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    const sectionContent = sectionElement.querySelector('.section-content');
+                    const chevron = header.querySelector('.fa-chevron-down');
+                    
+                    sectionContent.classList.toggle('hidden');
+                    chevron.classList.toggle('rotate-180');
+                    
+                    // Update state
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const section = focusTask.sections.find(s => s.id === sectionId);
+                        if (section) {
+                            section.expanded = !sectionContent.classList.contains('hidden');
+                            saveStateToLocalStorage();
+                        }
+                    }
+                });
+            });
+            
+            // Section title change
+            document.querySelectorAll('.section-title').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const sectionElement = e.target.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    
+                    // Update state
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const section = focusTask.sections.find(s => s.id === sectionId);
+                        if (section) {
+                            section.title = e.target.value.trim();
+                            saveStateToLocalStorage();
+                        }
+                    }
+                });
+            });
+            
+            // Section complete button
+            document.querySelectorAll('.section-complete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sectionElement = e.target.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    
+                    // Update state
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const section = focusTask.sections.find(s => s.id === sectionId);
+                        if (section) {
+                            section.completed = !section.completed;
+                            saveStateToLocalStorage();
+                            renderTaskSections(focusTask);
+                        }
+                    }
+                });
+            });
+            
+            // Click on rendered content to edit
+            document.querySelectorAll('.section-rendered').forEach(content => {
+                content.addEventListener('click', (e) => {
+                    const sectionElement = e.currentTarget.closest('[data-section-id]');
+                    const renderedEl = sectionElement.querySelector('.section-rendered');
+                    const textareaEl = sectionElement.querySelector('.section-textarea');
+                    
+                    // Switch to edit mode
+                    renderedEl.classList.add('hidden');
+                    textareaEl.classList.remove('hidden');
+                    textareaEl.focus();
+                });
+            });
+            
+            // Textarea blur - switch back to rendered mode
+            document.querySelectorAll('.section-textarea').forEach(textarea => {
+                textarea.addEventListener('blur', (e) => {
+                    const sectionElement = e.target.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    const renderedEl = sectionElement.querySelector('.section-rendered');
+                    const textareaEl = sectionElement.querySelector('.section-textarea');
+                    
+                    // Update state and render
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const section = focusTask.sections.find(s => s.id === sectionId);
+                        if (section) {
+                            section.content = textarea.value;
+                            renderedEl.innerHTML = marked.parse(section.content);
+                            
+                            // Update section header pills
+                            const pills = extractPills(section.content);
+                            const pillsContainer = sectionElement.querySelector('.section-header .flex.items-center:last-child');
+                            
+                            // Remove existing pills
+                            Array.from(pillsContainer.querySelectorAll('.pill')).forEach(pill => {
+                                pill.remove();
+                            });
+                            
+                            // Add new pills
+                            if (pills.length > 0) {
+                                const pillsHtml = pills.map(pill => {
+                                    const pillEl = document.createElement('span');
+                                    pillEl.className = 'pill';
+                                    pillEl.textContent = pill;
+                                    return pillEl;
+                                });
+                                
+                                // Insert before the buttons div
+                                const buttonsDiv = pillsContainer.querySelector('.flex.ml-2');
+                                pillsHtml.forEach(pill => {
+                                    pillsContainer.insertBefore(pill, buttonsDiv);
+                                });
+                            }
+                            
+                            saveStateToLocalStorage();
+                        }
+                    }
+                    
+                    // Switch back to rendered mode
+                    textareaEl.classList.add('hidden');
+                    renderedEl.classList.remove('hidden');
+                });
+                
+                // Also handle Escape key to cancel editing
+                textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        textarea.blur();
+                    }
+                });
+            });
+            
+            // Section delete button
+            document.querySelectorAll('.section-delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm('Are you sure you want to delete this section?')) {
+                        const sectionElement = e.target.closest('[data-section-id]');
+                        const sectionId = sectionElement.getAttribute('data-section-id');
+                        
+                        // Update state
+                        const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                        if (focusTask && focusTask.sections.length > 1) {
+                            focusTask.sections = focusTask.sections.filter(s => s.id !== sectionId);
+                            saveStateToLocalStorage();
+                            renderTaskSections(focusTask);
+                        }
+                    }
+                });
+            });
+            
+            // Section move up button
+            document.querySelectorAll('.section-move-up-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sectionElement = e.target.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    
+                    // Update state
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const sectionIndex = focusTask.sections.findIndex(s => s.id === sectionId);
+                        if (sectionIndex > 0) {
+                            // Swap with previous section
+                            [focusTask.sections[sectionIndex], focusTask.sections[sectionIndex - 1]] = 
+                            [focusTask.sections[sectionIndex - 1], focusTask.sections[sectionIndex]];
+                            
+                            saveStateToLocalStorage();
+                            renderTaskSections(focusTask);
+                        }
+                    }
+                });
+            });
+            
+            // Section move down button
+            document.querySelectorAll('.section-move-down-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const sectionElement = e.target.closest('[data-section-id]');
+                    const sectionId = sectionElement.getAttribute('data-section-id');
+                    
+                    // Update state
+                    const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                    if (focusTask) {
+                        const sectionIndex = focusTask.sections.findIndex(s => s.id === sectionId);
+                        if (sectionIndex < focusTask.sections.length - 1) {
+                            // Swap with next section
+                            [focusTask.sections[sectionIndex], focusTask.sections[sectionIndex + 1]] = 
+                            [focusTask.sections[sectionIndex + 1], focusTask.sections[sectionIndex]];
+                            
+                            saveStateToLocalStorage();
+                            renderTaskSections(focusTask);
+                        }
+                    }
+                });
+            });
+            
+            // Complete button at bottom of focus area
+            document.getElementById('complete-focus-task').addEventListener('click', function() {
+                completeCurrentTask();
+            });
+        }
+
+        // Complete current task and clear focus
+        function completeCurrentTask() {
+            if (state.focusTaskId) {
+                const task = state.tasks.find(task => task.id === state.focusTaskId);
+                if (task) {
+                    task.status = 'completed';
+                    task.lastModified = Date.now();
+                    state.focusTaskId = null;
+                    saveStateToLocalStorage();
+                    renderTasks();
+                }
+            }
+        }
+
+        // Set focus task
+        function setFocusTask(taskId) {
+            // Clear new task status
+            state.newTaskStatus = null;
+            
+            // Set new focus task
+            state.focusTaskId = taskId;
+            
+            saveStateToLocalStorage();
+            renderTasks();
+        }
+
+        // Clear focus task
+        function clearFocusTask() {
+            state.focusTaskId = null;
+            state.newTaskStatus = null;
+            saveStateToLocalStorage();
+            renderTasks();
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        }
+
+        // Open modal
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+        }
+
+        // Close modal
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+        }
+
+        // Toggle app context menu
+        function toggleAppMenu() {
+            const menu = document.getElementById('app-context-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Handle outside click for context menu
+        function handleOutsideClick(event) {
+            const menu = document.getElementById('app-context-menu');
+            const menuBtn = document.getElementById('app-menu-btn');
+            
+            if (!menu.classList.contains('hidden') && 
+                !menu.contains(event.target) && 
+                !menuBtn.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        }
+
+        // Create export selection UI
+        function createExportSelection() {
+            const container = document.getElementById('export-selection');
+            container.innerHTML = '';
+            
+            // Group tasks by status
+            const projectTasks = state.tasks.filter(task => task.projectId === state.currentProjectId);
+            const tasksByStatus = {
+                'priority': projectTasks.filter(task => task.status === 'priority'),
+                'active': projectTasks.filter(task => task.status === 'active'),
+                'backlog': projectTasks.filter(task => task.status === 'backlog'),
+                'parked': projectTasks.filter(task => task.status === 'parked'),
+                'completed': projectTasks.filter(task => task.status === 'completed')
+            };
+            
+            // Status labels
+            const statusLabels = {
+                'priority': 'Priority Tasks',
+                'active': 'Active Tasks',
+                'backlog': 'Backlog Tasks',
+                'parked': 'Parked Tasks',
+                'completed': 'Completed Tasks'
+            };
+            
+            // Create UI for each status group
+            for (const [status, tasks] of Object.entries(tasksByStatus)) {
+                if (tasks.length === 0) continue;
+                
+                const statusSection = document.createElement('div');
+                statusSection.className = 'mb-4';
+                
+                // Status header with select all checkbox
+                statusSection.innerHTML = `
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="export-${status}-all" class="export-status-checkbox mr-2" data-status="${status}" checked>
+                        <label for="export-${status}-all" class="font-medium">${statusLabels[status]}</label>
+                    </div>
+                `;
+                
+                // Task list
+                const taskList = document.createElement('div');
+                taskList.className = 'ml-6 space-y-1';
+                
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'flex items-center';
+                    taskItem.innerHTML = `
+                        <input type="checkbox" id="export-task-${task.id}" class="export-task-checkbox mr-2" data-task-id="${task.id}" data-status="${status}" checked>
+                        <label for="export-task-${task.id}" class="truncate">${task.title}</label>
+                    `;
+                    taskList.appendChild(taskItem);
+                });
+                
+                statusSection.appendChild(taskList);
+                container.appendChild(statusSection);
+            }
+            
+            // Add event listeners for status checkboxes
+            document.querySelectorAll('.export-status-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const status = e.target.getAttribute('data-status');
+                    const isChecked = e.target.checked;
+                    
+                    // Update all task checkboxes in this status
+                    document.querySelectorAll(`.export-task-checkbox[data-status="${status}"]`).forEach(taskCheckbox => {
+                        taskCheckbox.checked = isChecked;
+                    });
+                });
+            });
+        }
+
+        // Export selected tasks to JSON file
+        function exportSelectedTasks() {
+            const selectedTaskIds = Array.from(document.querySelectorAll('.export-task-checkbox:checked'))
+                .map(checkbox => checkbox.getAttribute('data-task-id'));
+            
+            if (selectedTaskIds.length === 0) {
+                alert('Please select at least one task to export.');
+                return;
+            }
+            
+            // Create export data
+            const exportData = {
+                tasks: state.tasks
+                    .filter(task => task.projectId === state.currentProjectId && selectedTaskIds.includes(task.id))
+                    .map(task => ({
+                        ...task,
+                        lastModified: task.lastModified || Date.now()
+                    })),
+                project: state.projects.find(project => project.id === state.currentProjectId)
+            };
+            
+            // Create and download file
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const dataUrl = URL.createObjectURL(dataBlob);
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataUrl;
+            downloadLink.download = `${exportData.project.name.replace(/\s+/g, '_')}_tasks.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            closeModal(document.getElementById('export-modal'));
+        }
+
+        // Process import file
+        function processImportFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // Validate structure
+                    if (!importData.tasks || !Array.isArray(importData.tasks)) {
+                        throw new Error('Invalid import data: missing tasks array');
+                    }
+                    
+                    // Migration: Handle 'normal' status conversion to 'active'
+                    importData.tasks.forEach(task => {
+                        if (task.status === 'normal') {
+                            task.status = 'active';
+                        }
+                    });
+                    
+                    // Show import preview
+                    createImportSelection(importData);
+                    document.getElementById('import-preview').classList.remove('hidden');
+                    
+                } catch (error) {
+                    alert('Error loading import file: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Create import selection UI
+        function createImportSelection(importData) {
+            const container = document.getElementById('import-selection');
+            container.innerHTML = '';
+            
+            // Get current project tasks
+            const projectTasks = state.tasks.filter(task => task.projectId === state.currentProjectId);
+            
+            // Prepare import tasks
+            importData.tasks.forEach(importTask => {
+                // Find matching task in current project (by title)
+                const matchingTask = projectTasks.find(task => 
+                    task.title.toLowerCase() === importTask.title.toLowerCase()
+                );
+                
+                // Determine if import task is newer
+                let isNewer = false;
+                let shouldSelect = true;
+                let statusClass = '';
+                
+                if (matchingTask) {
+                    const importModified = importTask.lastModified || 0;
+                    const localModified = matchingTask.lastModified || 0;
+                    
+                    isNewer = importModified > localModified;
+                    shouldSelect = isNewer;
+                    statusClass = isNewer ? 'bg-green-100' : 'bg-red-100';
+                    if (document.documentElement.classList.contains('dark')) {
+                        statusClass = isNewer ? 'bg-green-900' : 'bg-red-900';
+                    }
+                }
+                
+                // Create task item
+                const taskItem = document.createElement('div');
+                taskItem.className = `flex items-center p-2 mb-2 rounded ${statusClass}`;
+                
+                taskItem.innerHTML = `
+                    <input type="checkbox" id="import-task-${importTask.id}" class="import-task-checkbox mr-2" data-task-id="${importTask.id}" ${shouldSelect ? 'checked' : ''}>
+                    <div class="flex-1">
+                        <label for="import-task-${importTask.id}" class="font-medium">${importTask.title}</label>
+                        <div class="text-xs">
+                            ${importTask.dueDate ? `Due: ${new Date(importTask.dueDate).toLocaleDateString()}` : ''}
+                            ${importTask.status ? `• Status: ${importTask.status}` : ''}
+                            ${matchingTask ? (isNewer ? '<span class="text-green-600 dark:text-green-400">• Newer version</span>' : '<span class="text-red-600 dark:text-red-400">• Older version</span>') : ''}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(taskItem);
+            });
+            
+            // Store import data for reference
+            container.setAttribute('data-import-data', JSON.stringify(importData));
+        }
+
+        // Import selected tasks
+        function importSelectedTasks() {
+            const container = document.getElementById('import-selection');
+            const importData = JSON.parse(container.getAttribute('data-import-data'));
+            
+            // Get selected task IDs
+            const selectedTaskIds = Array.from(document.querySelectorAll('.import-task-checkbox:checked'))
+                .map(checkbox => checkbox.getAttribute('data-task-id'));
+            
+            if (selectedTaskIds.length === 0) {
+                alert('Please select at least one task to import.');
+                return;
+            }
+            
+            // Get current project tasks
+            const projectTasks = state.tasks.filter(task => task.projectId === state.currentProjectId);
+            
+            // Process selected tasks
+            const tasksToImport = importData.tasks.filter(task => selectedTaskIds.includes(task.id));
+            
+            tasksToImport.forEach(importTask => {
+                // Find matching task in current project (by title)
+                const matchingTaskIndex = projectTasks.findIndex(task => 
+                    task.title.toLowerCase() === importTask.title.toLowerCase()
+                );
+                
+                // Ensure task has projectId set to current project
+                importTask.projectId = state.currentProjectId;
+                
+                // Ensure task has lastModified timestamp
+                importTask.lastModified = importTask.lastModified || Date.now();
+                
+                if (matchingTaskIndex >= 0) {
+                    // Update existing task
+                    const globalIndex = state.tasks.findIndex(task => task.id === projectTasks[matchingTaskIndex].id);
+                    if (globalIndex >= 0) {
+                        state.tasks[globalIndex] = importTask;
+                    }
+                } else {
+                    // Add new task
+                    state.tasks.push(importTask);
+                }
+            });
+            
+            saveStateToLocalStorage();
+            renderTasks();
+            closeModal(document.getElementById('import-modal'));
+            alert(`${selectedTaskIds.length} tasks imported successfully.`);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Dark mode toggle
+            document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+                state.darkMode = !state.darkMode;
+                applyDarkMode();
+                saveStateToLocalStorage();
+                toggleAppMenu();
+            });
+            
+            // App menu button
+            document.getElementById('app-menu-btn').addEventListener('click', toggleAppMenu);
+            
+            // Close context menu on outside click
+            document.addEventListener('click', handleOutsideClick);
+            
+            // Add project button
+            document.getElementById('add-project-btn').addEventListener('click', () => {
+                openModal(document.getElementById('add-project-modal'));
+                toggleAppMenu();
+            });
+            
+            // Create new project
+            document.getElementById('create-project-btn').addEventListener('click', () => {
+                const projectName = document.getElementById('new-project-name').value.trim();
+                if (projectName) {
+                    const newProject = {
+                        id: generateId(),
+                        name: projectName
+                    };
+                    state.projects.push(newProject);
+                    state.currentProjectId = newProject.id;
+                    // Don't clear focus when switching projects
+                    document.getElementById('new-project-name').value = '';
+                    saveStateToLocalStorage();
+                    renderProjects();
+                    renderTasks();
+                    closeModal(document.getElementById('add-project-modal'));
+                }
+            });
+            
+            // Import button
+            document.getElementById('menu-import-btn').addEventListener('click', () => {
+                openModal(document.getElementById('import-modal'));
+                document.getElementById('import-preview').classList.add('hidden');
+                toggleAppMenu();
+            });
+            
+            // Import file change
+            document.getElementById('import-file').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    processImportFile(e.target.files[0]);
+                }
+            });
+            
+            // Export button
+            document.getElementById('menu-export-btn').addEventListener('click', () => {
+                openModal(document.getElementById('export-modal'));
+                createExportSelection();
+                toggleAppMenu();
+            });
+            
+            // Process export
+            document.getElementById('process-export').addEventListener('click', exportSelectedTasks);
+            
+            // Process import
+            document.getElementById('process-import').addEventListener('click', importSelectedTasks);
+            
+            // Select/Unselect all exports
+            document.getElementById('select-all-exports').addEventListener('click', () => {
+                document.querySelectorAll('.export-task-checkbox, .export-status-checkbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+            
+            document.getElementById('unselect-all-exports').addEventListener('click', () => {
+                document.querySelectorAll('.export-task-checkbox, .export-status-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+            
+            // Select/Unselect all imports
+            document.getElementById('select-all-imports').addEventListener('click', () => {
+                document.querySelectorAll('.import-task-checkbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+            
+            document.getElementById('unselect-all-imports').addEventListener('click', () => {
+                document.querySelectorAll('.import-task-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+            
+            // Add task buttons - now open the focus area with new task form
+            document.querySelectorAll('.add-task-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const status = e.currentTarget.getAttribute('data-status');
+                    
+                    // Set new task status and clear focus task
+                    state.newTaskStatus = status;
+                    state.focusTaskId = null;
+                    
+                    // Render the focus area with new task form
+                    saveStateToLocalStorage();
+                    renderTasks();
+                });
+            });
+            
+            // Commit focus task (create new task)
+            document.getElementById('commit-focus-task').addEventListener('click', () => {
+                const title = document.getElementById('new-task-title').value.trim();
+                const date = document.getElementById('new-task-date').value;
+                
+                if (title) {
+                    // Create new task
+                    const newTask = {
+                        id: generateId(),
+                        projectId: state.currentProjectId,
+                        title: title,
+                        dueDate: date || null,
+                        status: state.newTaskStatus,
+                        lastModified: Date.now(),
+                        sections: [
+                            { id: generateId(), title: 'Notes', content: '', expanded: true, completed: false }
+                        ]
+                    };
+                    
+                    state.tasks.push(newTask);
+                    
+                    // Clear new task status
+                    state.newTaskStatus = null;
+                    
+                    saveStateToLocalStorage();
+                    renderTasks();
+                }
+            });
+            
+            // Toggle categories visibility
+            document.getElementById('toggle-categories-btn').addEventListener('click', () => {
+                state.categoriesVisible = !state.categoriesVisible;
+                saveStateToLocalStorage();
+                updateCategoryToggle();
+            });
+            
+            // Toggle backlog visibility
+            document.getElementById('toggle-backlog').addEventListener('click', () => {
+                const backlogContainer = document.getElementById('backlog-container');
+                const toggleBtn = document.getElementById('toggle-backlog');
+                const icon = toggleBtn.querySelector('i');
+                
+                if (backlogContainer.classList.contains('hidden')) {
+                    backlogContainer.classList.remove('hidden');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    backlogContainer.classList.add('hidden');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+            
+            // Toggle completed tasks visibility
+            document.getElementById('toggle-completed').addEventListener('click', () => {
+                const completedContainer = document.getElementById('completed-container');
+                const toggleBtn = document.getElementById('toggle-completed');
+                const icon = toggleBtn.querySelector('i');
+                
+                if (completedContainer.classList.contains('hidden')) {
+                    completedContainer.classList.remove('hidden');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    completedContainer.classList.add('hidden');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+            
+            // Close focus task
+            document.getElementById('close-focus-task').addEventListener('click', clearFocusTask);
+            
+            // Add section button
+            document.getElementById('add-section-btn').addEventListener('click', () => {
+                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                if (focusTask) {
+                    // Add new section
+                    focusTask.sections.push({
+                        id: generateId(),
+                        title: 'New Section',
+                        content: '',
+                        expanded: true,
+                        completed: false
+                    });
+                    
+                    focusTask.lastModified = Date.now();
+                    saveStateToLocalStorage();
+                    renderTaskSections(focusTask);
+                }
+            });
+            
+            // Focus task title change
+            document.getElementById('focus-title').addEventListener('input', (e) => {
+                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                if (focusTask) {
+                    focusTask.title = e.target.value;
+                    focusTask.lastModified = Date.now();
+                    saveStateToLocalStorage();
+                }
+            });
+            
+            // Focus task date change
+            document.getElementById('focus-date').addEventListener('change', (e) => {
+                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                if (focusTask) {
+                    focusTask.dueDate = e.target.value || null;
+                    focusTask.lastModified = Date.now();
+                    saveStateToLocalStorage();
+                }
+            });
+            
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.fixed');
+                    closeModal(modal);
+                });
+            });
+            
+            // Close modals when clicking outside
+            document.querySelectorAll('.fixed').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal(modal);
+                    }
+                });
+            });
+            
+            // New task submit on Enter
+            document.getElementById('new-task-title').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('commit-focus-task').click();
+                }
+            });
+        }
+
+        // Initialize app on load
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
