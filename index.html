@@ -41,6 +41,101 @@
             border-color: #4b5563;
         }
         
+        /* Enhanced markdown content styling */
+        .markdown-content {
+            line-height: 1.6;
+        }
+
+        .markdown-content h1 {
+            font-size: 1.8em;
+            margin-top: 0.8em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+
+        .markdown-content h2 {
+            font-size: 1.5em;
+            margin-top: 0.7em;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+
+        .markdown-content h3 {
+            font-size: 1.3em;
+            margin-top: 0.6em;
+            margin-bottom: 0.4em;
+            font-weight: bold;
+        }
+
+        .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+            font-size: 1.1em;
+            margin-top: 0.5em;
+            margin-bottom: 0.3em;
+            font-weight: bold;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            padding-left: 2em;
+        }
+
+        .markdown-content ul {
+            list-style-type: disc;
+        }
+
+        .markdown-content ol {
+            list-style-type: decimal;
+        }
+
+        .markdown-content ul ul, .markdown-content ol ol, .markdown-content ul ol, .markdown-content ol ul {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .markdown-content li {
+            margin-bottom: 0.3em;
+        }
+
+        .markdown-content blockquote {
+            padding-left: 1em;
+            border-left: 4px solid #e5e7eb;
+            margin: 1em 0;
+            color: #6b7280;
+        }
+
+        .dark .markdown-content blockquote {
+            border-left-color: #4b5563;
+            color: #9ca3af;
+        }
+
+        .markdown-content pre {
+            background-color: #f3f4f6;
+            padding: 0.75em;
+            border-radius: 0.25em;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+
+        .dark .markdown-content pre {
+            background-color: #1f2937;
+        }
+
+        .markdown-content code {
+            font-family: monospace;
+            background-color: #f3f4f6;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25em;
+        }
+
+        .dark .markdown-content code {
+            background-color: #1f2937;
+        }
+
+        .markdown-content p {
+            margin-bottom: 1em;
+        }
+        
         /* Section transitions */
         .section-content {
             transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
@@ -99,6 +194,147 @@
         .toggle-icon.flip {
             transform: rotate(180deg);
         }
+        
+        /* Tag styling */
+        .task-tag {
+            display: inline-block;
+            background-color: #e5e7eb;
+            color: #4b5563;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .dark .task-tag {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+        .task-tag .delete-tag {
+            margin-left: 0.25rem;
+            opacity: 0.6;
+        }
+        .task-tag .delete-tag:hover {
+            opacity: 1;
+        }
+        .task-tag.priority {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .task-tag.active {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .task-tag.backlog {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .task-tag.parked {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .dark .task-tag.priority {
+            background-color: #7f1d1d;
+            color: #fecaca;
+        }
+        .dark .task-tag.active {
+            background-color: #1e3a8a;
+            color: #bfdbfe;
+        }
+        .dark .task-tag.backlog {
+            background-color: #374151;
+            color: #d1d5db;
+        }
+        .dark .task-tag.parked {
+            background-color: #78350f;
+            color: #fef3c7;
+        }
+        
+        /* Tag input styling */
+        .tag-input-container {
+            display: inline-flex;
+            align-items: center;
+            background-color: transparent;
+            border: 1px dashed #e5e7eb;
+            padding: 0.1rem 0.3rem;
+            border-radius: 9999px;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .dark .tag-input-container {
+            border-color: #4b5563;
+        }
+        .tag-input-container input {
+            background-color: transparent;
+            border: none;
+            padding: 0.1rem 0.2rem;
+            font-size: 0.75rem;
+            width: 8rem;
+            outline: none;
+        }
+        .tag-input-container button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            margin-left: 0.2rem;
+            cursor: pointer;
+            padding: 0 0.2rem;
+        }
+        .tag-input-container button:hover {
+            color: #3b82f6;
+        }
+        
+        /* Description markdown styling */
+        .description-rendered {
+            min-height: 100px; /* Match the tags area min-height */
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .dark .description-rendered {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+        .description-rendered.empty {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        /* Deadline display in task overview */
+        .days-left {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            white-space: nowrap;
+        }
+        .days-left.overdue {
+            color: #ef4444;
+        }
+        .days-left.due-soon {
+            color: #f59e0b;
+        }
+        
+        /* Category container styling */
+        .task-category {
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .task-category.expanded {
+            max-height: 1000px;
+        }
+        .task-category.collapsed {
+            max-height: 60px;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+        .task-category .task-list,
+        .task-category .category-content {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .task-category.collapsed .task-list,
+        .task-category.collapsed .category-content {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen transition-colors duration-200">
@@ -113,89 +349,95 @@
             <!-- Task categories row (priority, active, parked) -->
             <div id="task-categories" class="grid grid-cols-1 md:grid-cols-3 gap-4 expanded">
                 <!-- Priority tasks -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="priority-container">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-red-600 dark:text-red-400">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category expanded" id="priority-container">
+                    <div class="flex justify-between items-center mb-4 category-header">
+                        <h2 class="text-xl font-bold text-red-600 dark:text-red-400 cursor-pointer">
                             <i class="fas fa-exclamation-circle mr-2"></i>Priority
                         </h2>
                         <button class="add-task-btn p-2 rounded-full bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-600 dark:text-red-400" data-status="priority">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <div class="task-list min-h-24" id="priority-tasks"></div>
-                    <div id="priority-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
-                        <p>No priority tasks</p>
-                    </div>
-                    
-                    <!-- Backlog tasks (moved to priority) -->
-                    <div class="mt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-lg font-bold text-gray-600 dark:text-gray-400">
-                                <i class="fas fa-list-alt mr-2"></i>Backlog
-                            </h3>
-                            <div class="flex items-center">
-                                <button class="add-task-btn p-1 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 mr-2" data-status="backlog">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                                <button id="toggle-backlog" class="text-xs px-2 py-1 text-gray-600 dark:text-gray-400">
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                            </div>
+                    <div class="category-content">
+                        <div class="task-list min-h-24" id="priority-tasks"></div>
+                        <div id="priority-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                            <p>No priority tasks</p>
                         </div>
-                        <div id="backlog-container" class="hidden">
-                            <div class="task-list" id="backlog-tasks"></div>
-                            <div id="backlog-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
-                                <p>No backlog tasks</p>
+                        
+                        <!-- Backlog tasks (moved to priority) -->
+                        <div class="mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg font-bold text-gray-600 dark:text-gray-400">
+                                    <i class="fas fa-list-alt mr-2"></i>Backlog
+                                </h3>
+                                <div class="flex items-center">
+                                    <button class="add-task-btn p-1 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 mr-2" data-status="backlog">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button id="toggle-backlog" class="text-xs px-2 py-1 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="backlog-container" class="hidden">
+                                <div class="task-list" id="backlog-tasks"></div>
+                                <div id="backlog-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                                    <p>No backlog tasks</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active tasks (formerly Normal) -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="active-container">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category expanded" id="active-container">
+                    <div class="flex justify-between items-center mb-4 category-header">
+                        <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400 cursor-pointer">
                             <i class="fas fa-tasks mr-2"></i>Active
                         </h2>
                         <button class="add-task-btn p-2 rounded-full bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-400" data-status="active">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <div class="task-list min-h-24" id="active-tasks"></div>
-                    <div id="active-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
-                        <p>No active tasks</p>
+                    <div class="category-content">
+                        <div class="task-list min-h-24" id="active-tasks"></div>
+                        <div id="active-empty" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                            <p>No active tasks</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Parked tasks -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category" id="parked-container">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 task-category expanded" id="parked-container">
+                    <div class="flex justify-between items-center mb-4 category-header">
+                        <h2 class="text-xl font-bold text-yellow-600 dark:text-yellow-400 cursor-pointer">
                             <i class="fas fa-pause-circle mr-2"></i>Parked
                         </h2>
                         <button class="add-task-btn p-2 rounded-full bg-yellow-100 dark:bg-yellow-900 hover:bg-yellow-200 dark:hover:bg-yellow-800 text-yellow-600 dark:text-yellow-400" data-status="parked">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <div class="task-list min-h-16" id="parked-tasks"></div>
-                    <div id="parked-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
-                        <p>No parked tasks</p>
-                    </div>
-                    
-                    <!-- Completed tasks (initially collapsed) -->
-                    <div class="mt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-lg font-bold text-green-600 dark:text-green-400">
-                                <i class="fas fa-check-circle mr-2"></i>Completed
-                            </h3>
-                            <button id="toggle-completed" class="text-xs px-2 py-1 text-green-600 dark:text-green-400">
-                                <i class="fas fa-chevron-down"></i>
-                            </button>
+                    <div class="category-content">
+                        <div class="task-list min-h-16" id="parked-tasks"></div>
+                        <div id="parked-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                            <p>No parked tasks</p>
                         </div>
-                        <div id="completed-container" class="hidden">
-                            <div class="task-list" id="completed-tasks"></div>
-                            <div id="completed-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
-                                <p>No completed tasks</p>
+                        
+                        <!-- Completed tasks (initially collapsed) -->
+                        <div class="mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg font-bold text-green-600 dark:text-green-400">
+                                    <i class="fas fa-check-circle mr-2"></i>Completed
+                                </h3>
+                                <button id="toggle-completed" class="text-xs px-2 py-1 text-green-600 dark:text-green-400">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                            <div id="completed-container" class="hidden">
+                                <div class="task-list" id="completed-tasks"></div>
+                                <div id="completed-empty" class="text-center py-2 text-gray-500 dark:text-gray-400">
+                                    <p>No completed tasks</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -213,6 +455,7 @@
                         <h2 class="text-xl font-bold flex items-center">
                             <span id="focus-task-title">Task</span>
                         </h2>
+                        <div id="task-date-badge" class="ml-3 text-xs text-gray-500 dark:text-gray-400"></div>
                     </div>
                     <div id="task-status-badge" class="ml-2 px-2 py-1 rounded-full text-sm font-medium"></div>
                 </div>
@@ -224,20 +467,45 @@
                     </button>
                 </div>
                 
-                <!-- Task in focus mode -->
+                <!-- Task in focus mode (for existing tasks) -->
                 <div id="focus-content">
-                    <!-- Task title (editable) -->
-                    <div class="mb-6">
+                    <!-- Task title (editable) - Full width -->
+                    <div class="mb-4">
                         <input id="focus-title" class="text-2xl font-bold w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="Task title">
                     </div>
                     
-                    <!-- Task date (editable) -->
-                    <div class="mb-6">
-                        <input type="date" id="focus-date" class="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                    <!-- Due date (inline with title) is now moved to the top header -->
+                    
+                    <!-- Content area with description on left, tags on right -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <!-- Description (on left) -->
+                        <div class="md:w-3/4">
+                            <label class="text-sm font-medium mb-1 block">Description</label>
+                            <div id="focus-description-rendered" class="description-rendered border border-gray-200 dark:border-gray-700 rounded markdown-content prose dark:prose-invert max-w-none empty">
+                                <em>Add description...</em>
+                            </div>
+                            <textarea id="focus-description" class="w-full px-3 py-2 border rounded mt-2 dark:bg-gray-700 dark:border-gray-600 h-40 hidden" placeholder="Task description (Markdown supported)"></textarea>
+                        </div>
+                        
+                        <!-- Tags (on right) -->
+                        <div class="md:w-1/4">
+                            <label class="text-sm font-medium mb-1 block">Tags</label>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded p-2 min-h-[100px]">
+                                <div id="focus-tags" class="flex flex-wrap mb-3 min-h-8"></div>
+                                
+                                <!-- Add tag at bottom of tag section -->
+                                <div class="tag-input-container mt-2 w-full">
+                                    <input type="text" id="new-tag-input" placeholder="Add tag" class="flex-1">
+                                    <button id="add-tag-btn">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Task content with subheaders -->
-                    <div id="focus-sections">
+                    <div id="focus-sections" class="mt-4">
                         <!-- Sections will be dynamically added here -->
                     </div>
                     
@@ -252,16 +520,68 @@
                     </div>
                 </div>
                 
-                <!-- New task form (initially hidden) -->
+                <!-- New task form - Uses the same layout as focus content -->
                 <div id="new-task-form" class="hidden">
-                    <!-- Task title (editable) -->
-                    <div class="mb-6">
+                    <!-- Task title (editable) - Full width -->
+                    <div class="mb-4">
                         <input id="new-task-title" class="text-2xl font-bold w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="New task title">
                     </div>
                     
-                    <!-- Task date (editable) -->
-                    <div class="mb-6">
-                        <input type="date" id="new-task-date" class="px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                    <!-- Due date is now in the header -->
+                    
+                    <!-- Content area with description on left, tags on right -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <!-- Description (on left) -->
+                        <div class="md:w-3/4">
+                            <label class="text-sm font-medium mb-1 block">Description</label>
+                            <div id="new-task-description-rendered" class="description-rendered border border-gray-200 dark:border-gray-700 rounded markdown-content prose dark:prose-invert max-w-none empty">
+                                <em>Add description...</em>
+                            </div>
+                            <textarea id="new-task-description" class="w-full px-3 py-2 border rounded mt-2 dark:bg-gray-700 dark:border-gray-600 h-40 hidden" placeholder="Task description (Markdown supported)"></textarea>
+                        </div>
+                        
+                        <!-- Tags (on right) -->
+                        <div class="md:w-1/4">
+                            <label class="text-sm font-medium mb-1 block">Tags</label>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded p-2 min-h-[100px]">
+                                <div id="new-task-tags" class="flex flex-wrap mb-3 min-h-8"></div>
+                                
+                                <!-- Add tag at bottom of tag section -->
+                                <div class="tag-input-container mt-2 w-full">
+                                    <input type="text" id="new-task-tag-input" placeholder="Add tag" class="flex-1">
+                                    <button id="new-task-add-tag-btn">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Due date control moved to title row but still need the control -->
+                    <div class="absolute top-4 right-20">
+                        <input type="date" id="new-task-date" class="text-sm px-2 py-1 border border-gray-200 dark:border-gray-700 rounded dark:bg-gray-700 dark:text-gray-300">
+                    </div>
+                    
+                    <!-- New task sections -->
+                    <div id="new-task-sections" class="mt-4">
+                        <!-- Default section -->
+                        <div class="mb-4 border rounded dark:border-gray-600" data-section-id="new-section-1">
+                            <div class="section-header flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-700">
+                                <div class="flex items-center flex-1">
+                                    <input type="text" class="new-section-title bg-transparent border-none focus:ring-0 font-medium" value="Notes" placeholder="Section Title">
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <textarea class="new-section-content w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32" placeholder="Add your notes, ideas, or action items here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add new section button and Create button -->
+                    <div class="mt-6 flex justify-between items-center">
+                        <a id="new-task-add-section-btn" class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm">
+                            <i class="fas fa-plus mr-1"></i> Add section
+                        </a>
                     </div>
                     
                     <!-- Commit button for new task -->
@@ -270,6 +590,12 @@
                             <i class="fas fa-check"></i>
                         </button>
                     </div>
+                </div>
+                
+                <!-- Due date display and hidden control for existing tasks -->
+                <div class="absolute top-5 right-[10em] w-32 text-right z-10" id="date-control-container">
+                    <div id="date-display" class="inline-block cursor-pointer text-gray-500 dark:text-gray-400 text-sm px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">No date</div>
+                    <input type="date" id="focus-date" class="absolute inset-0 opacity-0 cursor-pointer z-20">
                 </div>
             </div>
         </div>
@@ -412,10 +738,12 @@
     <script>
         // Configure marked.js
         marked.use({
-            gfm: true,  // GitHub Flavored Markdown
-            breaks: true, // Translate line breaks
-            headerIds: false,
-            mangle: false
+            gfm: true,         // GitHub Flavored Markdown
+            breaks: true,      // Translate line breaks
+            headerIds: false,  // Don't generate IDs for headers
+            mangle: false,     // Don't escape HTML
+            pedantic: false,   // Be more forgiving in parsing
+            silent: false      // Show warnings in console
         });
 
         // App state
@@ -426,18 +754,40 @@
             tasks: [],
             focusTaskId: null,
             newTaskStatus: null, // For tracking which status a new task will have
-            categoriesVisible: true
+            categoriesVisible: true,
+            newTaskTags: [], // For tracking tags when creating a new task
+            expandedCategories: ['priority', 'active', 'parked'] // Tracks which categories are expanded
         };
 
         // Initialize app
         function initApp() {
             loadStateFromLocalStorage();
+            setDarkModeFromPreference(); // Use system preference initially
             applyDarkMode();
             renderProjects();
             renderTasks();
             setupEventListeners();
             initSortable();
             updateCategoryToggle();
+            updateCategoryExpansion();
+        }
+
+        // Format date as "01. Jan"
+        function formatDateShort(dateStr) {
+            if (!dateStr) return 'No date';
+            
+            const date = new Date(dateStr);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.toLocaleString('default', { month: 'short' });
+            
+            return `${day}. ${month}`;
+        }
+
+        // Check system preference for dark mode
+        function setDarkModeFromPreference() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                state.darkMode = true;
+            }
         }
 
         // Load state from localStorage
@@ -452,7 +802,27 @@
                         if (task.status === 'normal') {
                             task.status = 'active';
                         }
+                        
+                        // Initialize description field if not exists
+                        if (!task.description) {
+                            task.description = '';
+                        }
+                        
+                        // Initialize tags array if not exists
+                        if (!task.tags) {
+                            task.tags = [];
+                        }
                     });
+                }
+                
+                // Initialize newTaskTags if not exists
+                if (!state.newTaskTags) {
+                    state.newTaskTags = [];
+                }
+                
+                // Initialize expandedCategories if not exists
+                if (!state.expandedCategories) {
+                    state.expandedCategories = ['priority', 'active', 'parked'];
                 }
                 
             } else {
@@ -466,7 +836,9 @@
                     tasks: [],
                     focusTaskId: null,
                     newTaskStatus: null,
-                    categoriesVisible: true
+                    categoriesVisible: true,
+                    newTaskTags: [],
+                    expandedCategories: ['priority', 'active', 'parked']
                 };
                 saveStateToLocalStorage();
             }
@@ -495,6 +867,13 @@
             } else {
                 document.documentElement.classList.remove('dark');
             }
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            state.darkMode = !state.darkMode;
+            applyDarkMode();
+            saveStateToLocalStorage();
         }
 
         // Initialize Sortable for drag and drop
@@ -535,10 +914,15 @@
                 
                 // Show or hide the commit button based on whether this is a new task
                 const commitButton = document.getElementById('commit-focus-task');
+                const dateControlContainer = document.getElementById('date-control-container');
+                
                 if (state.newTaskStatus) {
                     commitButton.classList.remove('hidden');
+                    // Hide the date control for focus tasks since new tasks have their own
+                    dateControlContainer.classList.add('hidden');
                 } else {
                     commitButton.classList.add('hidden');
+                    dateControlContainer.classList.remove('hidden');
                 }
                 
                 if (state.categoriesVisible) {
@@ -550,6 +934,9 @@
                     categories.classList.add('collapsed');
                     toggleIcon.classList.add('flip');
                 }
+                
+                // Update date display
+                updateDateDisplay();
             } else {
                 // Hide the focus area
                 focusArea.classList.add('hidden');
@@ -557,6 +944,38 @@
                 categories.classList.add('expanded');
                 toggleIcon.classList.remove('flip');
                 state.categoriesVisible = true;
+            }
+        }
+        
+        // Update category expansion
+        function updateCategoryExpansion() {
+            const categoryContainers = document.querySelectorAll('.task-category');
+            
+            categoryContainers.forEach(container => {
+                const id = container.id.replace('-container', '');
+                
+                if (state.expandedCategories.includes(id)) {
+                    container.classList.remove('collapsed');
+                    container.classList.add('expanded');
+                } else {
+                    container.classList.remove('expanded');
+                    container.classList.add('collapsed');
+                }
+            });
+        }
+
+        // Update date display in the focus area
+        function updateDateDisplay() {
+            const dateDisplay = document.getElementById('date-display');
+            const dateInput = document.getElementById('focus-date');
+            
+            if (state.focusTaskId) {
+                const task = state.tasks.find(task => task.id === state.focusTaskId);
+                if (task && task.dueDate) {
+                    dateDisplay.textContent = formatDateShort(task.dueDate);
+                } else {
+                    dateDisplay.textContent = 'No date';
+                }
             }
         }
 
@@ -571,6 +990,56 @@
             }
             
             return pills;
+        }
+
+        // Format date for display
+        function formatDateForDisplay(dateStr) {
+            if (!dateStr) return '';
+            
+            const date = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const options = { month: 'short', day: 'numeric' };
+            
+            if (date < today) {
+                return `Overdue: ${date.toLocaleDateString(undefined, options)}`;
+            } else if (date.getTime() === today.getTime()) {
+                return 'Today';
+            } else if (date.getTime() === tomorrow.getTime()) {
+                return 'Tomorrow';
+            } else {
+                return date.toLocaleDateString(undefined, options);
+            }
+        }
+
+        // Calculate days left until deadline
+        function calculateDaysLeft(dateStr) {
+            if (!dateStr) return null;
+            
+            const dueDate = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Calculate the difference in milliseconds
+            const diffTime = dueDate.getTime() - today.getTime();
+            // Convert to days
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return { text: `${Math.abs(diffDays)} day${Math.abs(diffDays) !== 1 ? 's' : ''} overdue`, class: 'overdue' };
+            } else if (diffDays === 0) {
+                return { text: 'Due today', class: 'due-soon' };
+            } else if (diffDays === 1) {
+                return { text: 'Due tomorrow', class: 'due-soon' };
+            } else if (diffDays <= 3) {
+                return { text: `${diffDays} days left`, class: 'due-soon' };
+            } else {
+                return { text: `${diffDays} days left`, class: '' };
+            }
         }
 
         // Render projects
@@ -796,6 +1265,24 @@
             });
         }
 
+        // Render markdown content
+        function renderMarkdownContent(element, content) {
+            if (content && content.trim()) {
+                // Process the markdown
+                try {
+                    element.innerHTML = marked.parse(content.trim());
+                    element.classList.remove('empty');
+                } catch (e) {
+                    console.error('Error parsing markdown:', e);
+                    element.innerHTML = '<p>Error rendering markdown content</p>';
+                    element.classList.remove('empty');
+                }
+            } else {
+                element.innerHTML = '<em>Add content...</em>';
+                element.classList.add('empty');
+            }
+        }
+
         // Render tasks
         function renderTasks() {
             // Filter tasks for current project
@@ -824,6 +1311,9 @@
             
             // Update category visibility
             updateCategoryToggle();
+            
+            // Update category expansion
+            updateCategoryExpansion();
         }
 
         // Render a task list
@@ -847,33 +1337,45 @@
                     }
                     taskElement.setAttribute('data-task-id', task.id);
                     
-                    // Format date
-                    let dateDisplay = '';
+                    // Calculate days left for deadline
+                    let daysLeftHtml = '';
                     if (task.dueDate) {
-                        const dueDate = new Date(task.dueDate);
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(tomorrow.getDate() + 1);
-                        
-                        const options = { month: 'short', day: 'numeric' };
-                        
-                        if (dueDate < today) {
-                            dateDisplay = `<span class="text-red-500">Overdue: ${dueDate.toLocaleDateString(undefined, options)}</span>`;
-                        } else if (dueDate.getTime() === today.getTime()) {
-                            dateDisplay = '<span class="text-orange-500">Today</span>';
-                        } else if (dueDate.getTime() === tomorrow.getTime()) {
-                            dateDisplay = '<span class="text-yellow-500">Tomorrow</span>';
-                        } else {
-                            dateDisplay = dueDate.toLocaleDateString(undefined, options);
+                        const daysLeft = calculateDaysLeft(task.dueDate);
+                        if (daysLeft) {
+                            daysLeftHtml = `<span class="days-left ${daysLeft.class}">${daysLeft.text}</span>`;
                         }
+                    }
+                    
+                    // Format description (first 60 chars)
+                    let descriptionDisplay = '';
+                    if (task.description && task.description.trim()) {
+                        const shortDesc = task.description.trim().substring(0, 60);
+                        descriptionDisplay = `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${shortDesc}${task.description.length > 60 ? '...' : ''}</div>`;
+                    }
+                    
+                    // Format tags (show first 2)
+                    let tagsDisplay = '';
+                    if (task.tags && task.tags.length > 0) {
+                        const displayTags = task.tags.slice(0, 2);
+                        const tagsHtml = displayTags.map(tag => 
+                            `<span class="inline-block bg-gray-100 dark:bg-gray-600 text-xs px-1.5 py-0.5 rounded-full mr-1">${tag}</span>`
+                        ).join('');
+                        
+                        const moreTagsCount = task.tags.length > 2 ? task.tags.length - 2 : 0;
+                        const moreTagsHtml = moreTagsCount > 0 ? 
+                            `<span class="inline-block bg-gray-100 dark:bg-gray-600 text-xs px-1.5 py-0.5 rounded-full">+${moreTagsCount} more</span>` : '';
+                        
+                        tagsDisplay = `<div class="flex flex-wrap mt-1">${tagsHtml}${moreTagsHtml}</div>`;
                     }
                     
                     taskElement.innerHTML = `
                         <div class="flex-1">
-                            <div class="font-medium">${task.title}</div>
-                            ${dateDisplay ? `<div class="text-xs">${dateDisplay}</div>` : ''}
+                            <div class="flex justify-between items-center">
+                                <div class="font-medium mr-2">${task.title}</div>
+                                ${daysLeftHtml}
+                            </div>
+                            ${descriptionDisplay}
+                            ${tagsDisplay}
                         </div>
                         <div class="task-drag-handle ml-2 text-gray-400">
                             <i class="fas fa-grip-lines"></i>
@@ -900,6 +1402,33 @@
             document.getElementById('focus-content').classList.add('hidden');
             document.getElementById('new-task-form').classList.remove('hidden');
             
+            // Clear form fields
+            document.getElementById('new-task-title').value = '';
+            document.getElementById('new-task-date').value = '';
+            
+            // Initialize description
+            document.getElementById('new-task-description').value = '';
+            document.getElementById('new-task-description-rendered').innerHTML = '<em>Add description...</em>';
+            document.getElementById('new-task-description-rendered').classList.add('empty');
+            
+            // Clear tags
+            state.newTaskTags = [];
+            renderNewTaskTags();
+            
+            // Reset sections to default
+            document.getElementById('new-task-sections').innerHTML = `
+                <div class="mb-4 border rounded dark:border-gray-600" data-section-id="new-section-1">
+                    <div class="section-header flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-700">
+                        <div class="flex items-center flex-1">
+                            <input type="text" class="new-section-title bg-transparent border-none focus:ring-0 font-medium" value="Notes" placeholder="Section Title">
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <textarea class="new-section-content w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32" placeholder="Add your notes, ideas, or action items here..."></textarea>
+                    </div>
+                </div>
+            `;
+            
             // Set task status indicator
             const statusBadge = document.getElementById('task-status-badge');
             statusBadge.className = 'ml-2 px-2 py-1 rounded-full text-sm font-medium';
@@ -915,10 +1444,146 @@
             statusBadge.classList.add(...config.class.split(' '));
             statusBadge.textContent = config.text;
             
+            // Set due date badge
+            document.getElementById('task-date-badge').textContent = '';
+            
             // Focus title input
             setTimeout(() => {
                 document.getElementById('new-task-title').focus();
             }, 0);
+            
+            // Set up new task event listeners
+            setupNewTaskListeners();
+        }
+
+        // Render new task tags
+        function renderNewTaskTags() {
+            const tagsContainer = document.getElementById('new-task-tags');
+            tagsContainer.innerHTML = '';
+            
+            if (state.newTaskTags.length === 0) {
+                return;
+            }
+            
+            state.newTaskTags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'task-tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="delete-tag cursor-pointer" data-tag="${tag}">×</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+            
+            // Add event listeners for deleting tags
+            tagsContainer.querySelectorAll('.delete-tag').forEach(deleteBtn => {
+                deleteBtn.addEventListener('click', (e) => {
+                    const tag = e.target.getAttribute('data-tag');
+                    state.newTaskTags = state.newTaskTags.filter(t => t !== tag);
+                    renderNewTaskTags();
+                });
+            });
+        }
+
+        // Set up new task event listeners
+        function setupNewTaskListeners() {
+            // Add tag button
+            document.getElementById('new-task-add-tag-btn').addEventListener('click', () => {
+                const tagInput = document.getElementById('new-task-tag-input');
+                const tag = tagInput.value.trim();
+                
+                if (tag && !state.newTaskTags.includes(tag)) {
+                    state.newTaskTags.push(tag);
+                    tagInput.value = '';
+                    renderNewTaskTags();
+                    tagInput.focus();
+                }
+            });
+            
+            // Add tag on Enter
+            document.getElementById('new-task-tag-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('new-task-add-tag-btn').click();
+                }
+            });
+            
+            // Description editor
+            const descriptionRendered = document.getElementById('new-task-description-rendered');
+            const descriptionTextarea = document.getElementById('new-task-description');
+            
+            // Click on rendered content to edit
+            descriptionRendered.addEventListener('click', () => {
+                descriptionRendered.classList.add('hidden');
+                descriptionTextarea.classList.remove('hidden');
+                descriptionTextarea.focus();
+            });
+            
+            // Blur event to switch back to rendered view
+            descriptionTextarea.addEventListener('blur', () => {
+                const content = descriptionTextarea.value.trim();
+                renderMarkdownContent(descriptionRendered, content);
+                descriptionTextarea.classList.add('hidden');
+                descriptionRendered.classList.remove('hidden');
+            });
+            
+            // Add section button
+            document.getElementById('new-task-add-section-btn').addEventListener('click', () => {
+                const sectionsContainer = document.getElementById('new-task-sections');
+                const sectionId = 'new-section-' + (sectionsContainer.children.length + 1);
+                
+                const sectionElement = document.createElement('div');
+                sectionElement.className = 'mb-4 border rounded dark:border-gray-600';
+                sectionElement.setAttribute('data-section-id', sectionId);
+                
+                sectionElement.innerHTML = `
+                    <div class="section-header flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-700">
+                        <div class="flex items-center flex-1">
+                            <input type="text" class="new-section-title bg-transparent border-none focus:ring-0 font-medium" value="New Section" placeholder="Section Title">
+                        </div>
+                        <button class="delete-new-section-btn p-1 text-gray-500 hover:text-red-500" title="Delete Section">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <textarea class="new-section-content w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32" placeholder="Add your notes, ideas, or action items here..."></textarea>
+                    </div>
+                `;
+                
+                sectionsContainer.appendChild(sectionElement);
+                
+                // Add event listener for delete section button
+                sectionElement.querySelector('.delete-new-section-btn').addEventListener('click', () => {
+                    sectionElement.remove();
+                });
+                
+                // Focus title input
+                setTimeout(() => {
+                    sectionElement.querySelector('.new-section-title').focus();
+                }, 0);
+            });
+            
+            // Date change for new task
+            document.getElementById('new-task-date').addEventListener('change', (e) => {
+                // Update date badge
+                const dateBadge = document.getElementById('task-date-badge');
+                if (e.target.value) {
+                    dateBadge.textContent = formatDateForDisplay(e.target.value);
+                    
+                    // Reset color classes
+                    dateBadge.classList.remove('text-red-500', 'text-orange-500', 'text-yellow-500');
+                    
+                    // Add color based on date status
+                    if (dateBadge.textContent.includes('Overdue')) {
+                        dateBadge.classList.add('text-red-500');
+                    } else if (dateBadge.textContent === 'Today') {
+                        dateBadge.classList.add('text-orange-500');
+                    } else if (dateBadge.textContent === 'Tomorrow') {
+                        dateBadge.classList.add('text-yellow-500');
+                    }
+                } else {
+                    dateBadge.textContent = '';
+                }
+            });
         }
 
         // Render focus task
@@ -939,6 +1604,46 @@
             document.getElementById('focus-date').value = focusTask.dueDate || '';
             document.getElementById('focus-task-title').textContent = 'Task';
             
+            // Update date display
+            updateDateDisplay();
+            
+            // Clear the date badge (to avoid showing the date twice)
+            const dateBadge = document.getElementById('task-date-badge');
+            dateBadge.textContent = '';
+            
+            // Set up description with markdown
+            const descriptionContent = focusTask.description || '';
+            const descriptionTextarea = document.getElementById('focus-description');
+            const descriptionRendered = document.getElementById('focus-description-rendered');
+            
+            descriptionTextarea.value = descriptionContent;
+            renderMarkdownContent(descriptionRendered, descriptionContent);
+            
+            descriptionTextarea.classList.add('hidden');
+            descriptionRendered.classList.remove('hidden');
+            
+            // Set up description click to edit
+            descriptionRendered.addEventListener('click', () => {
+                descriptionRendered.classList.add('hidden');
+                descriptionTextarea.classList.remove('hidden');
+                descriptionTextarea.focus();
+            });
+            
+            // Set up description blur to save
+            descriptionTextarea.addEventListener('blur', () => {
+                const newContent = descriptionTextarea.value.trim();
+                focusTask.description = newContent;
+                
+                renderMarkdownContent(descriptionRendered, newContent);
+                
+                saveStateToLocalStorage();
+                descriptionTextarea.classList.add('hidden');
+                descriptionRendered.classList.remove('hidden');
+            });
+            
+            // Render tags
+            renderTaskTags(focusTask);
+            
             // Set task status indicator
             const statusBadge = document.getElementById('task-status-badge');
             statusBadge.className = 'ml-2 px-2 py-1 rounded-full text-sm font-medium';
@@ -955,8 +1660,86 @@
             statusBadge.classList.add(...config.class.split(' '));
             statusBadge.textContent = config.text;
             
+            // Set up tag event listeners
+            setupTagListeners(focusTask);
+            
             // Render sections
             renderTaskSections(focusTask);
+        }
+
+        // Render task tags
+        function renderTaskTags(task) {
+            const tagsContainer = document.getElementById('focus-tags');
+            tagsContainer.innerHTML = '';
+            
+            const tags = task.tags || [];
+            
+            if (tags.length === 0) {
+                return;
+            }
+            
+            tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'task-tag';
+                
+                // Add status-specific styling if the tag matches a status
+                if (['priority', 'active', 'backlog', 'parked'].includes(tag.toLowerCase())) {
+                    tagElement.classList.add(tag.toLowerCase());
+                }
+                
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="delete-tag cursor-pointer" data-tag="${tag}">×</span>
+                `;
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        // Set up tag event listeners
+        function setupTagListeners(task) {
+            // Add tag button
+            document.getElementById('add-tag-btn').addEventListener('click', () => {
+                const tagInput = document.getElementById('new-tag-input');
+                const tag = tagInput.value.trim();
+                
+                if (tag && !task.tags.includes(tag)) {
+                    task.tags.push(tag);
+                    task.lastModified = Date.now();
+                    tagInput.value = '';
+                    saveStateToLocalStorage();
+                    renderTaskTags(task);
+                    tagInput.focus();
+                    
+                    // Re-add event listeners for delete buttons
+                    setupDeleteTagListeners(task);
+                }
+            });
+            
+            // Add tag on Enter
+            document.getElementById('new-tag-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('add-tag-btn').click();
+                }
+            });
+            
+            // Set up delete tag listeners
+            setupDeleteTagListeners(task);
+        }
+
+        // Set up delete tag listeners
+        function setupDeleteTagListeners(task) {
+            document.querySelectorAll('.delete-tag').forEach(deleteBtn => {
+                deleteBtn.addEventListener('click', (e) => {
+                    const tag = e.target.getAttribute('data-tag');
+                    task.tags = task.tags.filter(t => t !== tag);
+                    task.lastModified = Date.now();
+                    saveStateToLocalStorage();
+                    renderTaskTags(task);
+                    
+                    // Re-add event listeners (because we've replaced the elements)
+                    setupDeleteTagListeners(task);
+                });
+            });
         }
 
         // Render task sections
@@ -1015,12 +1798,16 @@
                         </div>
                     </div>
                     <div class="section-content ${section.expanded ? '' : 'hidden'} p-4">
-                        <div class="section-rendered markdown-content prose dark:prose-invert max-w-none p-3 rounded cursor-pointer">${marked.parse(section.content || '')}</div>
-                        <textarea class="section-textarea w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32 hidden" placeholder="Section content (Markdown supported)">${section.content || ''}</textarea>
+                        <div class="section-rendered markdown-content prose dark:prose-invert max-w-none p-3 rounded cursor-pointer"></div>
+                        <textarea class="section-textarea w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600 h-32 hidden" placeholder="Add your notes, ideas, or action items here...">${section.content || ''}</textarea>
                     </div>
                 `;
                 
                 sectionsContainer.appendChild(sectionElement);
+                
+                // Render markdown content for the section
+                const renderedEl = sectionElement.querySelector('.section-rendered');
+                renderMarkdownContent(renderedEl, section.content || '');
             });
             
             // Add event listeners for sections
@@ -1122,7 +1909,7 @@
                         const section = focusTask.sections.find(s => s.id === sectionId);
                         if (section) {
                             section.content = textarea.value;
-                            renderedEl.innerHTML = marked.parse(section.content);
+                            renderMarkdownContent(renderedEl, section.content);
                             
                             // Update section header pills
                             const pills = extractPills(section.content);
@@ -1267,6 +2054,58 @@
         function clearFocusTask() {
             state.focusTaskId = null;
             state.newTaskStatus = null;
+            saveStateToLocalStorage();
+            renderTasks();
+        }
+
+        // Create new task from form
+        function createNewTaskFromForm() {
+            const title = document.getElementById('new-task-title').value.trim();
+            const description = document.getElementById('new-task-description').value.trim();
+            const date = document.getElementById('new-task-date').value;
+            
+            if (!title) {
+                alert('Please enter a title for the task');
+                return;
+            }
+            
+            // Collect sections
+            const sectionElements = document.querySelectorAll('#new-task-sections > div');
+            const sections = Array.from(sectionElements).map(sectionEl => {
+                const titleInput = sectionEl.querySelector('.new-section-title');
+                const contentInput = sectionEl.querySelector('.new-section-content');
+                
+                return {
+                    id: generateId(),
+                    title: titleInput.value.trim() || 'Untitled Section',
+                    content: contentInput.value || '',
+                    expanded: true,
+                    completed: false
+                };
+            });
+            
+            // Create new task
+            const newTask = {
+                id: generateId(),
+                projectId: state.currentProjectId,
+                title: title,
+                description: description,
+                dueDate: date || null,
+                status: state.newTaskStatus,
+                lastModified: Date.now(),
+                tags: [...state.newTaskTags],
+                sections: sections
+            };
+            
+            state.tasks.push(newTask);
+            
+            // Clear new task status
+            state.newTaskStatus = null;
+            state.newTaskTags = [];
+            
+            // Focus the new task
+            state.focusTaskId = newTask.id;
+            
             saveStateToLocalStorage();
             renderTasks();
         }
@@ -1429,6 +2268,16 @@
                         if (task.status === 'normal') {
                             task.status = 'active';
                         }
+                        
+                        // Initialize description field if not exists
+                        if (!task.description) {
+                            task.description = '';
+                        }
+                        
+                        // Initialize tags array if not exists
+                        if (!task.tags) {
+                            task.tags = [];
+                        }
                     });
                     
                     // Show import preview
@@ -1530,6 +2379,10 @@
                 // Ensure task has lastModified timestamp
                 importTask.lastModified = importTask.lastModified || Date.now();
                 
+                // Ensure description and tags exist
+                if (!importTask.description) importTask.description = '';
+                if (!importTask.tags) importTask.tags = [];
+                
                 if (matchingTaskIndex >= 0) {
                     // Update existing task
                     const globalIndex = state.tasks.findIndex(task => task.id === projectTasks[matchingTaskIndex].id);
@@ -1552,9 +2405,7 @@
         function setupEventListeners() {
             // Dark mode toggle
             document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-                state.darkMode = !state.darkMode;
-                applyDarkMode();
-                saveStateToLocalStorage();
+                toggleDarkMode();
                 toggleAppMenu();
             });
             
@@ -1659,30 +2510,48 @@
             
             // Commit focus task (create new task)
             document.getElementById('commit-focus-task').addEventListener('click', () => {
-                const title = document.getElementById('new-task-title').value.trim();
-                const date = document.getElementById('new-task-date').value;
-                
-                if (title) {
-                    // Create new task
-                    const newTask = {
-                        id: generateId(),
-                        projectId: state.currentProjectId,
-                        title: title,
-                        dueDate: date || null,
-                        status: state.newTaskStatus,
-                        lastModified: Date.now(),
-                        sections: [
-                            { id: generateId(), title: 'Notes', content: '', expanded: true, completed: false }
-                        ]
-                    };
+                createNewTaskFromForm();
+            });
+            
+            // Focus title input change
+            document.getElementById('focus-title').addEventListener('input', (e) => {
+                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                if (focusTask) {
+                    focusTask.title = e.target.value;
+                    focusTask.lastModified = Date.now();
+                    saveStateToLocalStorage();
+                }
+            });
+            
+            // Focus date change
+            document.getElementById('focus-date').addEventListener('change', (e) => {
+                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
+                if (focusTask) {
+                    focusTask.dueDate = e.target.value || null;
+                    focusTask.lastModified = Date.now();
                     
-                    state.tasks.push(newTask);
-                    
-                    // Clear new task status
-                    state.newTaskStatus = null;
+                    // Update date display
+                    updateDateDisplay();
                     
                     saveStateToLocalStorage();
-                    renderTasks();
+                }
+            });
+            
+            // Date selector click handler
+            document.getElementById('date-control-container').addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const dateInput = document.getElementById('focus-date');
+                dateInput.focus();
+                
+                // Use modern showPicker() method if available
+                if (dateInput.showPicker) {
+                    dateInput.showPicker();
+                } else {
+                    // Fallback for older browsers - don't create a new event!
+                    // Just focus the input which will show the picker in most browsers
+                    dateInput.focus();
                 }
             });
             
@@ -1691,6 +2560,42 @@
                 state.categoriesVisible = !state.categoriesVisible;
                 saveStateToLocalStorage();
                 updateCategoryToggle();
+            });
+            
+            // Toggle category expansion when clicking on headers
+            document.querySelectorAll('.category-header h2').forEach(header => {
+                header.addEventListener('click', (e) => {
+                    const categoryContainer = e.target.closest('.task-category');
+                    const categoryId = categoryContainer.id.replace('-container', '');
+                    
+                    // Toggle this category in the expanded list
+                    if (state.expandedCategories.includes(categoryId)) {
+                        state.expandedCategories = state.expandedCategories.filter(id => id !== categoryId);
+                    } else {
+                        state.expandedCategories.push(categoryId);
+                    }
+                    
+                    saveStateToLocalStorage();
+                    updateCategoryExpansion();
+                });
+            });
+            
+            // Close any expanded categories when clicking outside of them
+            document.addEventListener('click', (e) => {
+                // Skip if clicking within a category or on a category header
+                if (e.target.closest('.task-category') || e.target.closest('.category-header')) {
+                    return;
+                }
+                
+                // Don't collapse if focus area is visible
+                if (state.focusTaskId || state.newTaskStatus) {
+                    return;
+                }
+                
+                // Expand all categories
+                state.expandedCategories = ['priority', 'active', 'parked'];
+                saveStateToLocalStorage();
+                updateCategoryExpansion();
             });
             
             // Toggle backlog visibility
@@ -1749,26 +2654,6 @@
                 }
             });
             
-            // Focus task title change
-            document.getElementById('focus-title').addEventListener('input', (e) => {
-                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
-                if (focusTask) {
-                    focusTask.title = e.target.value;
-                    focusTask.lastModified = Date.now();
-                    saveStateToLocalStorage();
-                }
-            });
-            
-            // Focus task date change
-            document.getElementById('focus-date').addEventListener('change', (e) => {
-                const focusTask = state.tasks.find(task => task.id === state.focusTaskId);
-                if (focusTask) {
-                    focusTask.dueDate = e.target.value || null;
-                    focusTask.lastModified = Date.now();
-                    saveStateToLocalStorage();
-                }
-            });
-            
             // Close modal buttons
             document.querySelectorAll('.close-modal').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -1790,6 +2675,33 @@
             document.getElementById('new-task-title').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     document.getElementById('commit-focus-task').click();
+                }
+            });
+            
+            // Project name enter key
+            document.getElementById('new-project-name').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('create-project-btn').click();
+                }
+            });
+            
+            // Make the escape key close certain modals and focus areas
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Close context menu if open
+                    document.getElementById('app-context-menu').classList.add('hidden');
+                    
+                    // Close modals if open
+                    const visibleModal = document.querySelector('.fixed:not(.hidden)');
+                    if (visibleModal) {
+                        closeModal(visibleModal);
+                        return;
+                    }
+                    
+                    // Close focus area if open
+                    if (!document.getElementById('focus-area').classList.contains('hidden')) {
+                        clearFocusTask();
+                    }
                 }
             });
         }
